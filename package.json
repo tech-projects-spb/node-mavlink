@@ -22,7 +22,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "mavlink-mappings": "^1.0.9-20220424"
+    "mavlink-mappings": "github:tech-projects-spb/node-mavlink-mappings"
   },
   "scripts": {
     "build": "tsc && minimize-js dist",
