@@ -93,7 +93,7 @@ interface MavLinkProtocolConstructor {
   SYS_ID: uint8_t
   COMP_ID: uint8_t
 
-  new (): MavLinkProtocol
+  new(): MavLinkProtocol
 }
 
 /**
@@ -174,7 +174,7 @@ export class MavLinkProtocolV1 extends MavLinkProtocol {
     const plen = buffer.readUInt8(1)
     const payload = buffer.slice(MavLinkProtocolV1.PAYLOAD_OFFSET, MavLinkProtocolV1.PAYLOAD_OFFSET + plen)
     const padding = Buffer.from(new Uint8Array(255 - payload.length))
-    return Buffer.concat([ payload, padding ])
+    return Buffer.concat([payload, padding])
   }
 }
 
@@ -309,7 +309,7 @@ export class MavLinkProtocolV2 extends MavLinkProtocol {
     const plen = buffer.readUInt8(1)
     const payload = buffer.slice(MavLinkProtocolV2.PAYLOAD_OFFSET, MavLinkProtocolV2.PAYLOAD_OFFSET + plen)
     const padding = Buffer.from(new Uint8Array(255 - payload.length))
-    return Buffer.concat([ payload, padding ])
+    return Buffer.concat([payload, padding])
   }
 
   signature(buffer: Buffer, header: MavLinkPacketHeader): MavLinkPacketSignature {
@@ -349,7 +349,7 @@ export class MavLinkPacketSignature {
       .digest()
   }
 
-  constructor(private readonly buffer: Buffer) {}
+  constructor(private readonly buffer: Buffer) { }
 
   private get offset() {
     return this.buffer.length - MavLinkPacketSignature.SIGNATURE_LENGTH
@@ -443,7 +443,7 @@ export class MavLinkPacket {
     readonly crc: uint16_t = 0,
     readonly protocol: MavLinkProtocol = new MavLinkProtocolV1(),
     readonly signature: MavLinkPacketSignature = null,
-  ) {}
+  ) { }
 
   /**
    * Debug information about the packet
@@ -493,13 +493,13 @@ export class MavLinkPacketSplitter extends Transform {
    * @param verbose print diagnostic information
    * @param onCrcError callback executed if there is a CRC error (mostly for debugging)
    */
-  constructor(opts = {}, onCrcError: BufferCallback = () => {}) {
+  constructor(opts = {}, onCrcError: BufferCallback = () => { }) {
     super(opts)
     this.onCrcError = onCrcError
   }
 
   _transform(chunk: Buffer, encoding, callback: TransformCallback) {
-    this.buffer = Buffer.concat([ this.buffer, chunk ])
+    this.buffer = Buffer.concat([this.buffer, chunk])
 
     while (this.buffer.byteLength > 0) {
       const offset = this.findStartOfPacket(this.buffer)
@@ -730,6 +730,32 @@ export class MavLinkPacketParser extends Transform {
 
     callback(null, packet)
   }
+}
+
+function getProtocol(buffer): MavLinkProtocol {
+  const startByte = buffer.readUInt8(0)
+  switch (startByte) {
+    case MavLinkProtocolV1.START_BYTE:
+      return new MavLinkProtocolV1()
+    case MavLinkProtocolV2.START_BYTE:
+      return new MavLinkProtocolV2()
+    default:
+      throw new Error(`Unknown protocol '${hex(startByte)}'`)
+  }
+}
+
+export function parseMavlinkPacket(chunk: Buffer): MavLinkPacket {
+  const protocol = this.getProtocol(chunk)
+  const header = protocol.header(chunk)
+  const payload = protocol.payload(chunk)
+  const crc = protocol.crc(chunk)
+  const signature = protocol instanceof MavLinkProtocolV2
+    ? protocol.signature(chunk, header)
+    : null
+
+  const packet = new MavLinkPacket(chunk, header, payload, crc, protocol, signature)
+
+  return packet
 }
 
 /**
