@@ -2,7 +2,7 @@
 
 import yargs from 'yargs'
 import { existsSync, createReadStream } from 'fs'
-import { minimal, common, ardupilotmega } from 'mavlink-mappings'
+import { minimal, common } from 'mavlink-mappings'
 import { createMavLinkStream, MavLinkPacket, Logger, LogLevel, MavLinkPacketRegistry } from '..'
 import { dump } from '..'
 
@@ -39,7 +39,6 @@ async function main() {
     const REGISTRY: MavLinkPacketRegistry = {
       ...minimal.REGISTRY,
       ...common.REGISTRY,
-      ...ardupilotmega.REGISTRY,
     }
 
     const input = config.input === '-' ? process.stdin : createReadStream(config.input)
