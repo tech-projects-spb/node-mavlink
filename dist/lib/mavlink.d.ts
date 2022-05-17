@@ -249,6 +249,7 @@ export declare class MavLinkPacketParser extends Transform {
     _transform(chunk: Buffer, encoding: any, callback: TransformCallback): void;
 }
 export declare function parseMavlinkPacket(chunk: Buffer): MavLinkPacket;
+export declare function serializeMavlinkPacket(msg: MavLinkData, seq: number): Buffer;
 /**
  * Creates a MavLink packet stream reader that is reading packets from the given input
  *
