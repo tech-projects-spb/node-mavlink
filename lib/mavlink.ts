@@ -745,7 +745,7 @@ function getProtocol(buffer): MavLinkProtocol {
 }
 
 export function parseMavlinkPacket(chunk: Buffer): MavLinkPacket {
-  const protocol = this.getProtocol(chunk)
+  const protocol = getProtocol(chunk)
   const header = protocol.header(chunk)
   const payload = protocol.payload(chunk)
   const crc = protocol.crc(chunk)
