@@ -758,6 +758,11 @@ export function parseMavlinkPacket(chunk: Buffer): MavLinkPacket {
   return packet
 }
 
+export function serializeMavlinkPacket(msg: MavLinkData, seq: number): Buffer {
+  const protocol = new MavLinkProtocolV2()
+  return protocol.serialize(msg, seq)
+}
+
 /**
  * Creates a MavLink packet stream reader that is reading packets from the given input
  *
