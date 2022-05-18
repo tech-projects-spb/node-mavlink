@@ -30,7 +30,7 @@
     "test:batch": "npx ts-node tests/main.ts e2e --input tests/data.mavlink",
     "dev": "jest --watch",
     "test:e2e": "cd tests && ./main.ts e2e --input data.mavlink",
-    "prepublishOnly": "rm -rf dist && npm install && npm run build && npm test"
+    "prepublishOnly": "npm install && npm run build && npm test"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
